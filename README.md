@@ -33,65 +33,45 @@ The Poisson distribution is the discrete probability distribution of the number 
 ```py
 import numpy as np
 import math
-from scipy.stats import chi2
-
-# Input data
-data = list(map(int, input("Enter space-separated frequency values: ").split()))
-
-# Basic statistics
-N = len(data)
-max_val = max(data)
-
-# Frequency distribution (Observed)
-observed_freq = [data.count(i) for i in range(max_val + 1)]
-X = list(range(max_val + 1))  # X values
-total_freq = sum(observed_freq)
-
-# Probability for each X based on observed data
-prob_obs = [f / total_freq for f in observed_freq]
-
-# Compute mean (λ for Poisson) using dot product
-mean = np.inner(X, prob_obs)
-
-# Compute expected probabilities & expected frequencies under Poisson
-expected_probs = []
-expected_freq = []
-chi_sq_components = []
-
-print("\nX\tP(X=x)\tObs.Freq\tExp.Freq\tChi^2")
-print("-" * 50)
-
-for x in X:
-    # Poisson probability formula: P(X = x) = e^(-λ) * λ^x / x!
-    poisson_prob = math.exp(-mean) * (mean ** x) / math.factorial(x)
-    exp_freq = poisson_prob * total_freq
-    chi_sq = ((observed_freq[x] - exp_freq) ** 2) / exp_freq if exp_freq > 0 else 0
-
-    expected_probs.append(poisson_prob)
-    expected_freq.append(exp_freq)
-    chi_sq_components.append(chi_sq)
-
-    print(f"{x}\t{poisson_prob:.4f}\t{observed_freq[x]:>8}\t{exp_freq:>9.2f}\t{chi_sq:>7.2f}")
-
-# Calculate total Chi-square value
-calculated_chi_sq = sum(chi_sq_components)
-degrees_of_freedom = max_val  # df = k - 1 - 1 (mean estimated → one parameter)
-table_chi_sq = chi2.ppf(1 - 0.01, df=degrees_of_freedom)
-
-# Hypothesis Testing
-print("-" * 50)
-print(f"Calculated Chi-square value: {calculated_chi_sq:.4f}")
-print(f"Critical Chi-square value (1% LOS, df={degrees_of_freedom}): {table_chi_sq:.4f}")
-
-if calculated_chi_sq < table_chi_sq:
-    print("The data *fits* the Poisson distribution at 1% level of significance.")
+import scipy.stats
+L=[int(i) for i in input().split()]
+N=len(L); M=max(L)
+X=list();f=list()
+for i in range (M+1):
+   c = 0
+   for j in range(N):
+       if L[j]==i:
+           c=c+1
+   f.append(c)
+   X.append(i)
+sf=np.sum(f)
+p=list()
+for i in range(M+1):
+   p.append(f[i]/sf)
+mean=np.inner(X,p)
+p=list();E=list();xi=list()
+print("X P(X=x) Obs.Fr Exp.Fr xi")
+print("--------------------------")
+for x in range(M+1):
+   p.append(math.exp(-mean)*mean**x/math.factorial(x))
+   E.append(p[x]*sf)
+   xi.append((f[x]-E[x])**2/E[x])
+   print("%2.2f %2.3f %4.2f %3.2f %3.2f"%(x,p[x],f[x],E[x],xi[x]))
+print("--------------------------")
+cal_chi2_sq=np.sum(xi)
+print("Calculated value of Chi square is %4.2f"%cal_chi2_sq)
+table_chi2=scipy.stats.chi2.ppf(1-.01,df=M)
+print("Table value of chi square at 1 level is %4.2f"%table_chi2)
+if cal_chi2_sq<table_chi2:
+   print("The given data can be fitted in poisson Distribution at 1% LOS")
 else:
-    print("The data *does not fit* the Poisson distribution at 1% level of significance.")
+   print("The given data cannot be fitted in Poisson Distribution at 1% LOS")
  ```
 
 # Output : 
 
-![alt text](image.png)
+<img width="476" height="280" alt="image" src="https://github.com/user-attachments/assets/d34c0576-36f7-49db-af68-d946121baad6" />
+
 
 
 # Results
